@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+}
+apply from: 'upload.gradle'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+
+dependencies {
+    implementation 'com.google.auto.service:auto-service:1.0-rc6'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc6'
+    implementation 'com.squareup:javapoet:1.11.1'
+    implementation "com.squareup.retrofit2:retrofit:2.4.0"
+    implementation "wowo.kkk:netcache_annotation:1.0.3@jar"
+//    implementation project(path: ':lib-annotation')
+}

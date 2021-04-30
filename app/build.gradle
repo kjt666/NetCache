@@ -1,0 +1,66 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        applicationId "wowo.kjt.netcachedemo"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+                //华为
+                HUAWEI_APP_ID   : HW_APP_ID,
+                //Vivo
+                VIVO_APP_ID     : VIVO_APP_ID,
+                VIVO_API_KEY    : VIVO_API_KEY,
+                //个推参数
+                GETUI_APP_ID    : GETUI_Dev_APP_ID,
+                GETUI_APP_KEY   : GETUI_Dev_APP_KEY,
+                GETUI_APP_SECRET: GETUI_Dev_APP_SECRET
+        ]
+        buildConfigField "String", "XIAOMI_APP_ID", XiaoMi_Dev_APP_ID
+        buildConfigField "String", "XIAOMI_APP_KEY", XiaoMi_Dev_APP_KEY
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'aars'
+    }
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+//    implementation project(path: ':lib_netCache')exclude group: 'com.android.support', module: 'support-compat'
+//    annotationProcessor project(path:':lib-complie')
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation("com.fengwo.reading:pushlibrary:1.0.6@aar") { transitive = true;
+        exclude group: 'com.android.support', module: 'support-compat' }
+    implementation files('libs/lib-annotation.jar')
+
+    implementation project(path: ':lib_netCache')
+    exclude group: 'com.android.support', module: 'support-compat'
+    annotationProcessor project(path: ':lib-complie')
+}

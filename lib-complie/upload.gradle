@@ -1,0 +1,92 @@
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+def getRepositoryUrl() {
+    return VERSION_NAME_complie.toUpperCase().contains("SNAPSHOT") ? MAVEN_SNAPSHOTS_URL : MAVEN_RELEASE_URL
+}
+
+def getRepositoryUsername() {
+    return hasProperty('MAVEN_USERNAME') ? MAVEN_USERNAME : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty('MAVEN_PASSWORD') ? MAVEN_PASSWORD : ""
+}
+
+uploadArchives {
+    configuration = configurations.archives
+    repositories {
+        mavenDeployer {
+            repository(url: getRepositoryUrl()) {
+                authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            }
+            pom.project {
+                version VERSION_NAME_complie
+                artifactId ARTIFACT_ID_VALUE_complie
+                groupId GROUP_ID_VALUE
+                packaging 'aar'
+                description DESCRIPTION_VALUE
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact "build/outputs/aar/pushlibrary-release.aar"
+            groupId GROUP_ID_VALUE
+            artifactId ARTIFACT_ID_VALUE_complie
+            version VERSION_NAME_complie
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+                configurations.implementation.allDependencies.withType(ModuleDependency) { ModuleDependency dp ->
+                    if (dp.version != "unspecified") { // 过滤项目内library引用
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', dp.group)
+                        dependencyNode.appendNode('artifactId', dp.name)
+                        dependencyNode.appendNode('version', dp.version)
+
+                        // for exclusions
+                        if (dp.excludeRules.size() > 0) {
+                            def exclusions = dependencyNode.appendNode('exclusions')
+                            dp.excludeRules.each { ExcludeRule ex ->
+                                def exclusion = exclusions.appendNode('exclusion')
+                                exclusion.appendNode('groupId', ex.group)
+                                exclusion.appendNode('artifactId', ex.module)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            if (!Boolean.parseBoolean(useLocal) && project.hasProperty('MAVEN_USERNAME') && project.hasProperty('MAVEN_PASSWORD')) {
+                url getRepositoryUrl()
+                credentials {
+                    username MAVEN_USERNAME
+                    password MAVEN_PASSWORD
+                }
+            } else {
+                url "$rootDir/repo"
+            }
+        }
+    }
+
+}
+
+task publishToMaven(dependsOn: ['assemble', 'publish']) {
+    doLast {
+        if (!Boolean.parseBoolean(useLocal)) {
+            println "finish publish  to  maven"
+        } else {
+            println "finish publish  to  maven directory:--> $rootDir/repo"
+
+        }
+    }
+}
+
+publishToMaven.setGroup('SDKPush')

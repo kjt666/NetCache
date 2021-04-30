@@ -1,0 +1,5 @@
+include ':lib-annotation'
+include ':lib_netCache'
+include ':lib-complie'
+include ':app'
+rootProject.name = "NetCacheDemo"

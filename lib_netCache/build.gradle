@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.library'
+}
+apply from: 'upload.gradle'
+
+android {
+    compileSdkVersion 26
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+    implementation "com.android.support:appcompat-v7:26.0.0"
+
+    api 'com.squareup.okhttp3:okhttp:3.11.0'
+    api "com.squareup.retrofit2:retrofit:2.4.0"
+//    implementation project(path: ':lib-annotation')
+    api "wowo.kkk:netcache_annotation:1.0.3@jar"
+}
