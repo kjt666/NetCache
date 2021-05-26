@@ -29,7 +29,7 @@ public interface TestApi {
     @POST("mobile/config/bbb")
     ArrayList<String> testB();
 
-    @NetCache()
+    @NetCache(clazz=TestBean.class,autoLoad = false,cachePageIndex = "3")
     @GET("mobile/list/ccc")
     HttpResponse<TestBean> testC();
 

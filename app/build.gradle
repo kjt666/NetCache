@@ -56,11 +56,15 @@ dependencies {
 //    implementation project(path: ':lib_netCache')exclude group: 'com.android.support', module: 'support-compat'
 //    annotationProcessor project(path:':lib-complie')
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation("com.fengwo.reading:pushlibrary:1.0.6@aar") { transitive = true;
-        exclude group: 'com.android.support', module: 'support-compat' }
+    implementation("com.fengwo.reading:pushlibrary:1.0.6@aar") {
+        transitive = true
+        exclude group: 'com.android.support', module: 'support-compat'
+    }
     implementation files('libs/lib-annotation.jar')
 
-    implementation project(path: ':lib_netCache')
-    exclude group: 'com.android.support', module: 'support-compat'
+    implementation project(path: ':lib_netCache') /*{
+        transitive = false
+        exclude group: 'com.android.support', module: 'support-compat'
+    }*/
     annotationProcessor project(path: ':lib-complie')
 }

@@ -64,7 +64,12 @@ public class HttpInterceptorUtil {
     public static NetCacheModel checkCacheEnable(Request request) {
         NetCacheModel model = null;
         try {
-            String key = MD5Util.encodeBy32BitMD5(request.url().toString());
+            String url = request.url().toString();
+            ;
+            if ("GET".equalsIgnoreCase(request.method())) {
+                url = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
+            }
+            String key = MD5Util.encodeBy32BitMD5(url);
             if (NetCacheProcess.cacheModels.containsKey(key)) {
                 model = getNewModel(NetCacheProcess.cacheModels.get(key));
 //                //接口url为动态路径时，使用发起请求的url作为缓存url标识
@@ -92,8 +97,8 @@ public class HttpInterceptorUtil {
     }
 
     public static String getRequestParameter(Request request, String parameterName) {
-        String parameterValue = "";
-        if ("POST".equals(request.method())) {
+        String parameterValue = null;
+        if ("POST".equalsIgnoreCase(request.method())) {
             if (request.body() instanceof FormBody) {
                 FormBody body = (FormBody) request.body();
                 for (int i = 0; i < body.size(); i++) {
@@ -103,12 +108,12 @@ public class HttpInterceptorUtil {
                 }
             }
         }
-        if ("GET".equals(request.method())) {
+        if ("GET".equalsIgnoreCase(request.method())) {
             HttpUrl.Builder httpBuilder = request.url().newBuilder();
             HttpUrl httpUrl = httpBuilder.build();
             parameterValue = httpUrl.queryParameter(parameterName);
         }
-        return parameterValue;
+        return parameterValue == null ? "" : parameterValue;
     }
 
     private static NetCacheModel getNewModel(NetCacheModel oldModel) {
