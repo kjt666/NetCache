@@ -19,7 +19,7 @@ import wowo.kjt.lib_annotation.NetCache;
  */
 public interface TestApi {
 
-    @NetCache
+    @NetCache(clazz = String.class)
     @FormUrlEncoded
     @POST("mobile/user/aaa")
     String testA();

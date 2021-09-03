@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import wowo.kjt.lib_netcache.AutoExpansionPolicy;
+import wowo.kjt.lib_netcache.NetCacheProcess;
 import wowo.kjt.lib_netcache.listener.INetCacheIoListener;
 
 
@@ -26,7 +27,7 @@ public class NetCacheUtil {
     public static final String NET_CACHE_TAG = "net_cache";
     private static final ThreadPoolExecutor mThreadPoolExecutor = new ThreadPoolExecutor(
             15, 30, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(1), new AutoExpansionPolicy());
-    public static String mCacheFolderPath;
+//    public static String mCacheFolderPath;
 
     /**
      * 异步保存网络缓存
@@ -44,7 +45,7 @@ public class NetCacheUtil {
             public void run() {
                 String md5key = MD5Util.encodeBy32BitMD5(key);
                 Log.e(NetCacheUtil.NET_CACHE_TAG, key + " + md5 = " + md5key);
-                NetCacheFileUtil.writeJson2File(mCacheFolderPath + md5key, json, false, listener);
+                NetCacheFileUtil.writeJson2File(NetCacheProcess.cacheFolderPath + md5key, json, false, listener);
             }
         });
     }
@@ -64,7 +65,7 @@ public class NetCacheUtil {
             public void run() {
                 String md5key = MD5Util.encodeBy32BitMD5(key);
                 Log.e(NetCacheUtil.NET_CACHE_TAG, key + " + md5 = " + md5key);
-                NetCacheFileUtil.readJson2File(mCacheFolderPath + md5key, listener);
+                NetCacheFileUtil.readJson2File(NetCacheProcess.cacheFolderPath + md5key, listener);
             }
         });
     }
@@ -80,10 +81,10 @@ public class NetCacheUtil {
         }
         String md5key = MD5Util.encodeBy32BitMD5(key);
         Log.e(NetCacheUtil.NET_CACHE_TAG, key + " + md5 = " + md5key);
-        return NetCacheFileUtil.readJson2File(mCacheFolderPath + md5key, listener);
+        return NetCacheFileUtil.readJson2File(NetCacheProcess.cacheFolderPath + md5key, listener);
     }
 
-    public static void setCacheFolderPath(String path) {
+    /*public static void setCacheFolderPath(String path) {
         if (TextUtils.isEmpty(path)) {
             Log.e(NetCacheUtil.NET_CACHE_TAG, "netCache folderPath is null");
             return;
@@ -98,6 +99,6 @@ public class NetCacheUtil {
             return;
         }
         mCacheFolderPath = path;
-    }
+    }*/
 
 }

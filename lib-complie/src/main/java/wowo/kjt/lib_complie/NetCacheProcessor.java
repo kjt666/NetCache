@@ -171,11 +171,11 @@ public class NetCacheProcessor extends AbstractProcessor {
         //生成获取与接口对应的缓存的方法
         for (NetCacheMethodClass methodClass : mMethodClassList) {
 
-            if (methodClass.getReturnType().getKind() == TypeKind.VOID) {
+            if (methodClass.getReturnType() == null) {
                 break;
             }
 
-            TypeName realReturnType = methodClass.getReturnTypeName() == null ? ClassName.get(methodClass.getReturnType()) : methodClass.getReturnTypeName();
+            TypeName realReturnType = methodClass.getReturnType();
 
             String filterParameter = methodClass.getFilterParameterName();
             boolean hasFilterParameter = (filterParameter != null && !filterParameter.isEmpty());
@@ -226,7 +226,7 @@ public class NetCacheProcessor extends AbstractProcessor {
         //生成获取与接口对应的Json缓存的方法
         for (NetCacheMethodClass methodClass : mMethodClassList) {
 
-            if (methodClass.getReturnType().getKind() == TypeKind.VOID) {
+            if (methodClass.getReturnType() == null) {
                 break;
             }
 
@@ -297,7 +297,7 @@ public class NetCacheProcessor extends AbstractProcessor {
                     .methodBuilder(methodClass.getMethodName())
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .returns(Class.class);
-            if (methodClass.getReturnType().getKind() != TypeKind.VOID) {
+            if (methodClass.getReturnType() == null) {
                 method.beginControlFlow("try")
                         .addStatement("return $T.forName($S)", cla, methodClass.getReturnType().toString())
                         .nextControlFlow("catch($T e)", ClassNotFoundException.class)

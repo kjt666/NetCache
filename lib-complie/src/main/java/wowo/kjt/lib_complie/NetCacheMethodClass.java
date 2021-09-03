@@ -2,10 +2,15 @@ package wowo.kjt.lib_complie;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+
+import java.util.List;
 
 import javax.annotation.processing.Messager;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
@@ -35,9 +40,7 @@ public class NetCacheMethodClass {
 
     private String mUrl;
 
-    private TypeMirror mReturnType;
-
-    private TypeName mReturnTypeName;
+    private TypeName mReturnType;
 
 
     public NetCacheMethodClass(ExecutableElement element, Messager messager) {
@@ -46,8 +49,8 @@ public class NetCacheMethodClass {
         mMethodName = element.getSimpleName().toString();
         NetCache netCache = element.getAnnotation(NetCache.class);
         mFilterParameterName = netCache.multipleCacheIdentificationParameter();
-        mReturnType = element.getReturnType();
-        if (mReturnType.getKind() != TypeKind.VOID){
+//        Class.forName(returnType.toString());
+        /*if (mReturnType.getKind() != TypeKind.VOID){
             String s = mReturnType.toString();
             mMessager.printMessage(Diagnostic.Kind.OTHER,s);
             if (s.contains("HttpResponse<")) {
@@ -60,11 +63,20 @@ public class NetCacheMethodClass {
                 String beanName = s1.substring(s1.lastIndexOf(".") + 1);
                 mReturnTypeName = ClassName.get(pakageName, beanName);
             }
+        }*/
+        messager.printMessage(Diagnostic.Kind.WARNING, "><><><><><><><>");
+        try {
+            netCache.clazz();
+        } catch (MirroredTypeException e) {
+            messager.printMessage(Diagnostic.Kind.WARNING, e.getTypeMirror().toString());
+            mReturnType = ClassName.get(e.getTypeMirror());
         }
-        if (element.getAnnotation(GET.class)!=null){
+        messager.printMessage(Diagnostic.Kind.WARNING, mReturnType.toString());
+
+        if (element.getAnnotation(GET.class) != null) {
             mUrl = element.getAnnotation(GET.class).value();
         }
-        if (element.getAnnotation(POST.class)!=null){
+        if (element.getAnnotation(POST.class) != null) {
             mUrl = element.getAnnotation(POST.class).value();
         }
     }
@@ -85,11 +97,8 @@ public class NetCacheMethodClass {
         return mUrl;
     }
 
-    public TypeMirror getReturnType() {
+    public TypeName getReturnType() {
         return mReturnType;
     }
 
-    public TypeName getReturnTypeName() {
-        return mReturnTypeName;
-    }
 }

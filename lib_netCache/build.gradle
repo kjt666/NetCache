@@ -33,6 +33,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     api 'com.squareup.okhttp3:okhttp:3.11.0'
     api "com.squareup.retrofit2:retrofit:2.4.0"
-//    implementation project(path: ':lib-annotation')
-    api "wowo.kkk:netcache_annotation:1.0.3@jar"
+    implementation project(path: ':lib-annotation')
+//    api "wowo.kkk:netcache_annotation:1.0.3@jar"
 }
