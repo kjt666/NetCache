@@ -70,8 +70,8 @@ public class HttpInterceptorUtil {
                 url = url.contains("?") ? url.substring(0, url.indexOf("?")) : url;
             }
             String key = MD5Util.encodeBy32BitMD5(url);
-            if (NetCacheProcess.cacheModels.containsKey(key)) {
-                model = getNewModel(NetCacheProcess.cacheModels.get(key));
+            if (NetCacheProcess.sCacheModels.containsKey(key)) {
+                model = getNewModel(NetCacheProcess.sCacheModels.get(key));
 //                //接口url为动态路径时，使用发起请求的url作为缓存url标识
 //                if (model.dynamicPath) {
 //                    model.cacheUrl = request.url().toString();

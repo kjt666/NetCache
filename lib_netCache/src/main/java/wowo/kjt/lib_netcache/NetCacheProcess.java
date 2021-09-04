@@ -31,12 +31,11 @@ public class NetCacheProcess {
     /**
      * 已Http请求url的md5值为key
      */
-    public static Application application;
-    public static HashMap<String, NetCacheModel> cacheModels = new HashMap<>();
-    private static String DEFAULT_CACHE_FILE_FOLDER = "/netCache/";
-    public static String cacheFolderPath;
-    public static String BASE_URL;
-
+    public static Application sApplication;
+    public static HashMap<String, NetCacheModel> sCacheModels = new HashMap<>();
+    private static final String DEFAULT_CACHE_FILE_FOLDER = "/netCache/";
+    public static String sCacheFolderPath;
+    public static CacheConfig sCacheConfig;
 
     public static void init(@NonNull Application context, @NonNull CacheConfig config) {
 
@@ -51,9 +50,9 @@ public class NetCacheProcess {
         }
 
         try {
-            application = context;
-            cacheModels.clear();
-            BASE_URL = config.getBaseUrl();
+            sApplication = context;
+            sCacheModels.clear();
+            sCacheConfig = config;
             Method[] methods = config.getService().getMethods();
             for (Method method : methods) {
                 NetCache netCache = method.getAnnotation(NetCache.class);
@@ -79,8 +78,8 @@ public class NetCacheProcess {
             //设置默认的缓存路径
             File externalCacheDir = context.getExternalCacheDir();
             if (externalCacheDir != null) {
-                cacheFolderPath = externalCacheDir.getAbsolutePath() + (TextUtils.isEmpty(config.getCacheFolderName()) ? DEFAULT_CACHE_FILE_FOLDER : config.getCacheFolderName());
-                File cacheFile = new File(cacheFolderPath);
+                sCacheFolderPath = externalCacheDir.getAbsolutePath() + (TextUtils.isEmpty(config.getCacheFolderName()) ? DEFAULT_CACHE_FILE_FOLDER : config.getCacheFolderName());
+                File cacheFile = new File(sCacheFolderPath);
                 if (!cacheFile.exists()) {
                     cacheFile.mkdir();
                 }
@@ -103,6 +102,6 @@ public class NetCacheProcess {
 //        model.dynamicPath = netCache.dynamicPath();
         model.autoLoad = netCache.autoLoad();
 
-        cacheModels.put(MD5Util.encodeBy32BitMD5(key), model);
+        sCacheModels.put(MD5Util.encodeBy32BitMD5(key), model);
     }
 }

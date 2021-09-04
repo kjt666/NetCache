@@ -49,29 +49,13 @@ public class NetCacheMethodClass {
         mMethodName = element.getSimpleName().toString();
         NetCache netCache = element.getAnnotation(NetCache.class);
         mFilterParameterName = netCache.multipleCacheIdentificationParameter();
-//        Class.forName(returnType.toString());
-        /*if (mReturnType.getKind() != TypeKind.VOID){
-            String s = mReturnType.toString();
-            mMessager.printMessage(Diagnostic.Kind.OTHER,s);
-            if (s.contains("HttpResponse<")) {
-                String[] strings = s.split("[<>]");
-                for (String split : strings) {
-                    mMessager.printMessage(Diagnostic.Kind.OTHER, split);
-                }
-                String s1 = strings[strings.length - 1];
-                String pakageName = s1.substring(0, s1.lastIndexOf("."));
-                String beanName = s1.substring(s1.lastIndexOf(".") + 1);
-                mReturnTypeName = ClassName.get(pakageName, beanName);
-            }
-        }*/
-        messager.printMessage(Diagnostic.Kind.WARNING, "><><><><><><><>");
+        messager.printMessage(Diagnostic.Kind.NOTE, "><><><><><><><>");
         try {
             netCache.clazz();
         } catch (MirroredTypeException e) {
-            messager.printMessage(Diagnostic.Kind.WARNING, e.getTypeMirror().toString());
             mReturnType = ClassName.get(e.getTypeMirror());
         }
-        messager.printMessage(Diagnostic.Kind.WARNING, mReturnType.toString());
+        messager.printMessage(Diagnostic.Kind.NOTE, mReturnType.toString());
 
         if (element.getAnnotation(GET.class) != null) {
             mUrl = element.getAnnotation(GET.class).value();

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import wowo.kjt.lib_annotation.GenericContainer;
 import wowo.kjt.lib_annotation.NetCache;
 
 /**
@@ -17,23 +18,19 @@ import wowo.kjt.lib_annotation.NetCache;
  * version: 1.0
  * </pre>
  */
+@GenericContainer(container = HttpResponse.class)
 public interface TestApi {
 
-    @NetCache(clazz = String.class)
+    @NetCache()
     @FormUrlEncoded
     @POST("mobile/user/aaa")
-    String testA();
+    HttpResponse<Object> testA();
 
-    @NetCache
-    @FormUrlEncoded
-    @POST("mobile/config/bbb")
-    ArrayList<String> testB();
+    @NetCache(clazz = TestBean.class, autoLoad = false, cachePageIndex = "3")
+    @GET("mobile/list/bbb")
+    HttpResponse<TestBean> testB();
 
-    @NetCache(clazz=TestBean.class,autoLoad = false,cachePageIndex = "3")
-    @GET("mobile/list/ccc")
-    HttpResponse<TestBean> testC();
-
-    @NetCache(multipleCacheIdentificationParameter = "type")
-    @GET("mobile/content/ddd")
-    void testD();
+    @NetCache(clazz = TestBean2.class, multipleCacheIdentificationParameter = "type")
+    @GET("mobile/content/ccc")
+    HttpResponse<TestBean2> testC();
 }

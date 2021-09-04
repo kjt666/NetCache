@@ -4,7 +4,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 
-import java.io.File;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +44,7 @@ public class NetCacheUtil {
             public void run() {
                 String md5key = MD5Util.encodeBy32BitMD5(key);
                 Log.e(NetCacheUtil.NET_CACHE_TAG, key + " + md5 = " + md5key);
-                NetCacheFileUtil.writeJson2File(NetCacheProcess.cacheFolderPath + md5key, json, false, listener);
+                NetCacheFileUtil.writeJson2File(NetCacheProcess.sCacheFolderPath + md5key, json, false, listener);
             }
         });
     }
@@ -65,7 +64,7 @@ public class NetCacheUtil {
             public void run() {
                 String md5key = MD5Util.encodeBy32BitMD5(key);
                 Log.e(NetCacheUtil.NET_CACHE_TAG, key + " + md5 = " + md5key);
-                NetCacheFileUtil.readJson2File(NetCacheProcess.cacheFolderPath + md5key, listener);
+                NetCacheFileUtil.readJson2File(NetCacheProcess.sCacheFolderPath + md5key, listener);
             }
         });
     }
@@ -81,7 +80,7 @@ public class NetCacheUtil {
         }
         String md5key = MD5Util.encodeBy32BitMD5(key);
         Log.e(NetCacheUtil.NET_CACHE_TAG, key + " + md5 = " + md5key);
-        return NetCacheFileUtil.readJson2File(NetCacheProcess.cacheFolderPath + md5key, listener);
+        return NetCacheFileUtil.readJson2File(NetCacheProcess.sCacheFolderPath + md5key, listener);
     }
 
     /*public static void setCacheFolderPath(String path) {

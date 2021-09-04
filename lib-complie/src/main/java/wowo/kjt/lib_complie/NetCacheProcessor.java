@@ -27,6 +27,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -34,6 +35,7 @@ import javax.tools.Diagnostic;
 
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import wowo.kjt.lib_annotation.GenericContainer;
 import wowo.kjt.lib_annotation.NetCache;
 
 /**
@@ -61,6 +63,8 @@ public class NetCacheProcessor extends AbstractProcessor {
 
     private List<NetCacheMethodClass> mMethodClassList = new ArrayList<>();
     private PackageElement mPackageElement;
+    private TypeName mGenericContainer;
+    private String mGenericField;
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
@@ -85,6 +89,22 @@ public class NetCacheProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
+        Set<? extends Element> annotated = roundEnvironment.getElementsAnnotatedWith(GenericContainer.class);
+        if (annotated.size() > 1) {
+            throw new IllegalStateException("Only one " + GenericContainer.class.getSimpleName() + " is allowed");
+        }
+        for (Element element : annotated) {
+            if (element.getKind() != ElementKind.INTERFACE) {
+                throw new IllegalStateException("Only interfaces can be annotated with " + GenericContainer.class.getSimpleName());
+            }
+            GenericContainer genericContainer = element.getAnnotation(GenericContainer.class);
+            try {
+                genericContainer.container();
+            } catch (MirroredTypeException e) {
+                mGenericContainer = ClassName.get(e.getTypeMirror());
+            }
+            mGenericField = genericContainer.field();
+        }
         Set<? extends Element> elements = roundEnvironment.getElementsAnnotatedWith(NetCache.class);
         for (Element element : elements) {
             if (mPackageElement == null) {
@@ -105,7 +125,6 @@ public class NetCacheProcessor extends AbstractProcessor {
         }
         return true;
     }
-
 
     private void checkValidMethod(Element element) {
         //NetCache注解只用用在方法上
@@ -138,6 +157,7 @@ public class NetCacheProcessor extends AbstractProcessor {
 
         //导入需要的工具类
         TypeName gson = ClassName.get("com.google.gson", "Gson");
+        TypeName typeToken = ClassName.get("com.google.gson.reflect", "TypeToken");
         TypeName netCacheUtil = ClassName.get("wowo.kjt.lib_netcache.util", "NetCacheUtil");
         TypeName listener = ClassName.get("wowo.kjt.lib_netcache.listener", "NetCacheLoadListener");
         TypeName netCacheProcess = ClassName.get("wowo.kjt.lib_netcache", "NetCacheProcess");
@@ -152,21 +172,6 @@ public class NetCacheProcessor extends AbstractProcessor {
                 .classBuilder(mCacheClassName)
                 .addModifiers(Modifier.PUBLIC)
                 .addField(fieldGson);
-
-        //生成截取json字符串的方法
-        MethodSpec subStringMethod = MethodSpec
-                .methodBuilder("subJsonString")
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-                .returns(String.class)
-                .addParameter(String.class, "json")
-                .beginControlFlow("if(json != null && json.contains($S))", "\"data\":")
-                .addStatement("int startIndex = json.indexOf($S) + 7", "\"data\":")
-                .addStatement("int endIndex = json.lastIndexOf($S)", "}")
-                .addStatement("json = json.substring(startIndex,endIndex)")
-                .endControlFlow()
-                .addStatement("return json")
-                .build();
-        clazz.addMethod(subStringMethod);
 
         //生成获取与接口对应的缓存的方法
         for (NetCacheMethodClass methodClass : mMethodClassList) {
@@ -188,15 +193,21 @@ public class NetCacheProcessor extends AbstractProcessor {
 
             if (hasFilterParameter) {
                 method.addParameter(String.class, "filterParameter")
-                        .addStatement("$T url = $T.BASE_URL + $S + filterParameter", String.class, netCacheProcess, methodClass.getUrl());
+                        .addStatement("$T url = $T.sCacheConfig.getBaseUrl() + $S + filterParameter", String.class, netCacheProcess, methodClass.getUrl());
             } else {
-                method.addStatement("$T url = $T.BASE_URL + $S", String.class, netCacheProcess, methodClass.getUrl());
+                method.addStatement("$T url = $T.sCacheConfig.getBaseUrl() + $S", String.class, netCacheProcess, methodClass.getUrl());
             }
 
-            method.addStatement("$T cache = $T.loadCache(url,new $T())", String.class, netCacheUtil, listener)
-                    .addStatement("cache = $N(cache)", subStringMethod)
-                    .addStatement("return ($T)mGson.fromJson(cache,$T.forName($S))", realReturnType, Class.class, realReturnType.toString())
-                    .nextControlFlow("catch($T e)", Exception.class)
+            method.addStatement("$T cache = $T.loadCache(url,new $T())", String.class, netCacheUtil, listener);
+
+            if (mGenericContainer == null || mGenericField == null || mGenericField.isEmpty()) {
+                method.addStatement("return ($T)mGson.fromJson(cache,$T.forName($S))", realReturnType, Class.class, realReturnType.toString());
+            } else {
+                method.addStatement("$T<$T> response = mGson.fromJson(cache,new $T<$T<$T>>(){}.getType())", mGenericContainer, realReturnType, typeToken, mGenericContainer, realReturnType)
+                        .addStatement("return response.$L", mGenericField);
+            }
+
+            method.nextControlFlow("catch($T e)", Exception.class)
                     .addStatement("e.printStackTrace()")
                     .endControlFlow()
                     .addStatement("return null");
@@ -241,9 +252,9 @@ public class NetCacheProcessor extends AbstractProcessor {
                     .beginControlFlow("try");
             if (hasFilterParameter) {
                 method.addParameter(String.class, "filterParameter")
-                        .addStatement("$T url = $T.BASE_URL + $S + filterParameter", String.class, netCacheProcess, methodClass.getUrl());
+                        .addStatement("$T url = $T.sCacheConfig.getBaseUrl() + $S + filterParameter", String.class, netCacheProcess, methodClass.getUrl());
             } else {
-                method.addStatement("$T url = $T.BASE_URL + $S", String.class, netCacheProcess, methodClass.getUrl());
+                method.addStatement("$T url = $T.sCacheConfig.getBaseUrl() + $S", String.class, netCacheProcess, methodClass.getUrl());
             }
             method.addStatement("json = $T.loadCache(url,new $T())", netCacheUtil, listener)
                     .nextControlFlow("catch($T e)", Exception.class)

@@ -19,8 +19,6 @@ public class CacheConfig {
 
     private String cacheFolderName;
 
-    private int dataHierarchy;
-
     public CacheConfig() {
     }
 
@@ -34,16 +32,10 @@ public class CacheConfig {
         return this;
     }
 
-    public CacheConfig setDataHierarchy(int dataHierarchy) {
-        this.dataHierarchy = dataHierarchy;
-        return this;
-    }
-
-    public <T> CacheConfig setClazz(Class<T> clazz){
+    public CacheConfig setService(Class<?> clazz){
         this.service = clazz;
         return this;
     }
-
 
     public String getBaseUrl() {
         return baseUrl;
@@ -57,7 +49,4 @@ public class CacheConfig {
         return cacheFolderName;
     }
 
-    public int getDataHierarchy() {
-        return dataHierarchy;
-    }
 }

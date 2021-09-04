@@ -23,8 +23,7 @@ public class MyApp extends Application {
 //        NetCacheProcess.init(this,"http://test.app.com/",TestApi.class);
         CacheConfig config = new CacheConfig()
                 .setBaseUrl("http://test.app.com/")
-                .setClazz(TestApi.class)
-                .setDataHierarchy(2);
+                .setService(TestApi.class);
         NetCacheProcess.init(this,config);
     }
 }

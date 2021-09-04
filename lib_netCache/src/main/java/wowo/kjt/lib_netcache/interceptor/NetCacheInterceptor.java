@@ -33,7 +33,7 @@ public class NetCacheInterceptor implements Interceptor {
         Response response = null;
         NetCacheModel cacheModel = HttpInterceptorUtil.checkCacheEnable(request);
         //无网络时并且此接口可缓存时尝试获取缓存返回
-        if (!NetworkUtil.isNetworkAvailable(NetCacheProcess.application) && cacheModel != null && cacheModel.autoLoad) {
+        if (!NetworkUtil.isNetworkAvailable(NetCacheProcess.sApplication) && cacheModel != null && cacheModel.autoLoad) {
             String cache = NetCacheUtil.loadCache(cacheModel.cacheUrl, new NetCacheLoadListener());
             //缓存不为空时创建response返回
             if (!TextUtils.isEmpty(cache)) {
